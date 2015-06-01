@@ -74,7 +74,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private FloatBuffer cubeNormals;
 
     private FloatBuffer my3dObjVertices[] = new FloatBuffer[my3dObjCount];
-    private FloatBuffer my3dObjColors[] = new FloatBuffer[my3dObjCount];
+    private FloatBuffer my3dObjTextures[] = new FloatBuffer[my3dObjCount];
     private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
 
     private int cubeProgram;
@@ -99,11 +99,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private int my3dObjPositionParam[] = new int[my3dObjCount];
     private int my3dObjNormalParam[] = new int[my3dObjCount];
-    private int my3dObjColorParam[] = new int[my3dObjCount];
+    private int my3dObjTextureParam[] = new int[my3dObjCount];
     private int my3dObjModelParam[] = new int[my3dObjCount];
     private int my3dObjModelViewParam[] = new int[my3dObjCount];
     private int my3dObjModelViewProjectionParam[] = new int[my3dObjCount];
     private int my3dObjLightPosParam[] = new int[my3dObjCount];
+    private int my3dObjTextureHandlerParam[] = new int[my3dObjCount];
 
     private float[] modelCube;
     private float[] camera;
@@ -181,8 +182,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         setCardboardView(cardboardView);
 
         objUtil=new ObjUtil();
-        float[] test=objUtil.loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
-        Log.i(TAG,"a"+test.length+" "+test[0]+" "+test[1]);
+        objUtil.loadBanana();
+        //float[] test=objUtil.loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
+        //Log.i(TAG,"a"+test.length+" "+test[0]+" "+test[1]);
 
         modelCube = new float[16];
         camera = new float[16];
@@ -270,22 +272,22 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         //make my own 3d objs
         for (int i=0;i<my3dObjCount;i++) {
-            ByteBuffer bbMy3dObjVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
+            ByteBuffer bbMy3dObjVertices = ByteBuffer.allocateDirect(objUtil.bananaVert.length * 4);
             bbMy3dObjVertices.order(ByteOrder.nativeOrder());
             my3dObjVertices[i] = bbMy3dObjVertices.asFloatBuffer();
-            my3dObjVertices[i].put(WorldLayoutData.CUBE_COORDS);
+            my3dObjVertices[i].put(objUtil.bananaVert);
             my3dObjVertices[i].position(0);
 
-            ByteBuffer bbMy3dObjColors = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COLORS.length * 4);
-            bbMy3dObjColors.order(ByteOrder.nativeOrder());
-            my3dObjColors[i] = bbMy3dObjColors.asFloatBuffer();
-            my3dObjColors[i].put(WorldLayoutData.CUBE_COLORS);
-            my3dObjColors[i].position(0);
+            ByteBuffer bbMy3dObjTextures = ByteBuffer.allocateDirect(objUtil.bananaText.length * 4);
+            bbMy3dObjTextures.order(ByteOrder.nativeOrder());
+            my3dObjTextures[i] = bbMy3dObjTextures.asFloatBuffer();
+            my3dObjTextures[i].put(objUtil.bananaText);
+            my3dObjTextures[i].position(0);
 
-            ByteBuffer bbMy3dObjNormals = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_NORMALS.length * 4);
+            ByteBuffer bbMy3dObjNormals = ByteBuffer.allocateDirect(objUtil.bananaNorm.length * 4);
             bbMy3dObjNormals.order(ByteOrder.nativeOrder());
             my3dObjNormals[i] = bbMy3dObjNormals.asFloatBuffer();
-            my3dObjNormals[i].put(WorldLayoutData.CUBE_NORMALS);
+            my3dObjNormals[i].put(objUtil.bananaNorm);
             my3dObjNormals[i].position(0);
         }
 
@@ -351,16 +353,17 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
             my3dObjPositionParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Position");
             my3dObjNormalParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Normal");
-            my3dObjColorParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Color");
+            my3dObjTextureParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_TexCoordinate");
 
             my3dObjModelParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_Model");
             my3dObjModelViewParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_MVMatrix");
             my3dObjModelViewProjectionParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_MVP");
             my3dObjLightPosParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_LightPos");
+            my3dObjTextureHandlerParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_s_texture");
 
-            GLES20.glEnableVertexAttribArray(cubePositionParam);
-            GLES20.glEnableVertexAttribArray(cubeNormalParam);
-            GLES20.glEnableVertexAttribArray(cubeColorParam);
+            GLES20.glEnableVertexAttribArray(my3dObjPositionParam[i]);
+            GLES20.glEnableVertexAttribArray(my3dObjNormalParam[i]);
+            //GLES20.glEnableVertexAttribArray(my3dObjTextureParam[i]);
 
             checkGLError("my3dObj "+i+" program params");
         }
@@ -543,10 +546,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Set the normal positions of the cube, again for shading
         GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
-        GLES20.glVertexAttribPointer(my3dObjColorParam[index], 4, GLES20.GL_FLOAT, false, 0, my3dObjColors[index]);
+        //GLES20.glVertexAttribPointer(my3dObjTextureParam[index], 2, GLES20.GL_FLOAT, false, 0, my3dObjTextureParam[index]);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
-        checkGLError("Drawing \"+i+\" cube");
+        checkGLError("Drawing "+index+" cube");
     }
 
     /**

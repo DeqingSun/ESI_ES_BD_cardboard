@@ -9,17 +9,15 @@ import java.io.IOException;
 import android.os.Environment;
 import android.util.Log;
 
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.nio.FloatBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * Created by sundeqing on 6/1/15.
  */
 class ObjUtil {
     private static final String TAG = "ObjUtil";
+
+    public float[] bananaVert, bananaNorm, bananaText;
 
     public float[] loadSettingsFromFile(String filename) {
         BufferedReader br = null;
@@ -67,5 +65,11 @@ class ObjUtil {
             e.printStackTrace();
         }
         return dataArray;
+    }
+
+    public void loadBanana() {
+        bananaVert=loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
+        bananaNorm =loadArrayFromFile("Cardboard/obj_info/banana.hNorms",8056*9);
+        bananaText =loadArrayFromFile("Cardboard/obj_info/banana.hTexts",8056*6);
     }
 }
