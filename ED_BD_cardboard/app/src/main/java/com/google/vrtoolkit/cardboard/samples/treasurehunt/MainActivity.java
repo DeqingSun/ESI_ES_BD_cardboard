@@ -57,7 +57,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private static final int COORDS_PER_VERTEX = 3;
 
-    private static final int my3dObjCount = 1;
+    private static final int my3dObjCount = 6;
 
     // We keep the light always position just above the user.
     private static final float[] LIGHT_POS_IN_WORLD_SPACE = new float[] { 0.0f, 2.0f, 0.0f, 1.0f };
@@ -75,7 +75,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private FloatBuffer my3dObjVertices[] = new FloatBuffer[my3dObjCount];
     private FloatBuffer my3dObjColors[] = new FloatBuffer[my3dObjCount];
-    private FloatBuffer my3dObjFoundColors[] = new FloatBuffer[my3dObjCount];
     private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
 
     private int cubeProgram;
@@ -370,7 +369,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         for (int i=0;i<my3dObjCount;i++) {
             // Object my objects appears directly in front of user.
             Matrix.setIdentityM(modelMy3dObj[i], 0);
-            Matrix.translateM(modelMy3dObj[i], 0, 0, 0, -objectDistance);
+            Matrix.translateM(modelMy3dObj[i], 0, (float)(4*Math.cos(i*2*Math.PI/my3dObjCount)), (float)(4*Math.sin(i*2*Math.PI/my3dObjCount)), -objectDistance);
         }
 
         checkGLError("onSurfaceCreated");
