@@ -57,6 +57,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
   private static final int COORDS_PER_VERTEX = 3;
 
+  private static final int my3dObjCount = 1;
+
   // We keep the light always position just above the user.
   private static final float[] LIGHT_POS_IN_WORLD_SPACE = new float[] { 0.0f, 2.0f, 0.0f, 1.0f };
 
@@ -71,8 +73,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
   private FloatBuffer cubeFoundColors;
   private FloatBuffer cubeNormals;
 
+  private FloatBuffer my3dObjVertices[] = new FloatBuffer[my3dObjCount];
+  private FloatBuffer my3dObjColors[] = new FloatBuffer[my3dObjCount];
+  private FloatBuffer my3dObjFoundColors[] = new FloatBuffer[my3dObjCount];
+  private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
+
   private int cubeProgram;
   private int floorProgram;
+  private int my3dObjProgram[] = new int[my3dObjCount];
 
   private int cubePositionParam;
   private int cubeNormalParam;
@@ -90,6 +98,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
   private int floorModelViewProjectionParam;
   private int floorLightPosParam;
 
+  private int my3dObjPositionParam[] = new int[my3dObjCount];
+  private int my3dObjNormalParam[] = new int[my3dObjCount];
+  private int my3dObjColorParam[] = new int[my3dObjCount];
+  private int my3dObjModelParam[] = new int[my3dObjCount];
+  private int my3dObjModelViewParam[] = new int[my3dObjCount];
+  private int my3dObjModelViewProjectionParam[] = new int[my3dObjCount];
+  private int my3dObjLightPosParam[] = new int[my3dObjCount];
+
   private float[] modelCube;
   private float[] camera;
   private float[] view;
@@ -97,6 +113,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
   private float[] modelViewProjection;
   private float[] modelView;
   private float[] modelFloor;
+  private float[][] modelMy3dObj = new float[my3dObjCount][];
 
   private int score = 0;
   private float objectDistance = 12f;
@@ -169,6 +186,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     modelView = new float[16];
     modelFloor = new float[16];
     headView = new float[16];
+    for (int i=0;i<my3dObjCount;i++) {
+        modelMy3dObj[i] = new float[16];
+    }
     vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
 
@@ -243,6 +263,27 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     floorColors.put(WorldLayoutData.FLOOR_COLORS);
     floorColors.position(0);
 
+    //make my own 3d objs
+    for (int i=0;i<my3dObjCount;i++) {
+      ByteBuffer bbMy3dObjVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
+      bbMy3dObjVertices.order(ByteOrder.nativeOrder());
+      my3dObjVertices[i] = bbMy3dObjVertices.asFloatBuffer();
+      my3dObjVertices[i].put(WorldLayoutData.CUBE_COORDS);
+      my3dObjVertices[i].position(0);
+
+      ByteBuffer bbMy3dObjColors = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COLORS.length * 4);
+      bbMy3dObjColors.order(ByteOrder.nativeOrder());
+      my3dObjColors[i] = bbMy3dObjColors.asFloatBuffer();
+      my3dObjColors[i].put(WorldLayoutData.CUBE_COLORS);
+      my3dObjColors[i].position(0);
+
+      ByteBuffer bbMy3dObjNormals = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_NORMALS.length * 4);
+      bbMy3dObjNormals.order(ByteOrder.nativeOrder());
+      my3dObjNormals[i] = bbMy3dObjNormals.asFloatBuffer();
+      my3dObjNormals[i].put(WorldLayoutData.CUBE_NORMALS);
+      my3dObjNormals[i].position(0);
+    }
+
     int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
     int gridShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.grid_fragment);
     int passthroughShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment);
@@ -293,12 +334,44 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     checkGLError("Floor program params");
 
+
+    for (int i=0;i<my3dObjCount;i++) {
+      my3dObjProgram[i] = GLES20.glCreateProgram();
+      GLES20.glAttachShader(my3dObjProgram[i], vertexShader);
+      GLES20.glAttachShader(my3dObjProgram[i], passthroughShader);
+      GLES20.glLinkProgram(my3dObjProgram[i]);
+      GLES20.glUseProgram(my3dObjProgram[i]);
+
+      checkGLError("my3dObj "+i+" program");
+
+      my3dObjPositionParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Position");
+      my3dObjNormalParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Normal");
+      my3dObjColorParam[i] = GLES20.glGetAttribLocation(my3dObjProgram[i], "a_Color");
+
+      my3dObjModelParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_Model");
+      my3dObjModelViewParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_MVMatrix");
+      my3dObjModelViewProjectionParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_MVP");
+      my3dObjLightPosParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_LightPos");
+
+      GLES20.glEnableVertexAttribArray(cubePositionParam);
+      GLES20.glEnableVertexAttribArray(cubeNormalParam);
+      GLES20.glEnableVertexAttribArray(cubeColorParam);
+
+      checkGLError("my3dObj "+i+" program params");
+    }
+
     // Object first appears directly in front of user.
     Matrix.setIdentityM(modelCube, 0);
     Matrix.translateM(modelCube, 0, 0, 0, -objectDistance);
 
     Matrix.setIdentityM(modelFloor, 0);
     Matrix.translateM(modelFloor, 0, 0, -floorDepth, 0); // Floor appears below user.
+
+    for (int i=0;i<my3dObjCount;i++) {
+      // Object my objects appears directly in front of user.
+      Matrix.setIdentityM(modelMy3dObj[i], 0);
+      Matrix.translateM(modelMy3dObj[i], 0, 0, 0, -objectDistance);
+    }
 
     checkGLError("onSurfaceCreated");
   }
@@ -374,6 +447,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     Matrix.multiplyMM(modelViewProjection, 0, perspective, 0,
       modelView, 0);
     drawFloor();
+
+    for (int i=0;i<my3dObjCount;i++) {
+      Matrix.multiplyMM(modelView, 0, view, 0, modelMy3dObj[i], 0);
+      Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
+      drawMy3dObj(i);
+    }
   }
 
   @Override
@@ -437,6 +516,32 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 
     checkGLError("drawing floor");
+  }
+
+  //modified from drawCube
+  public void drawMy3dObj(int index) {
+    GLES20.glUseProgram(my3dObjProgram[index]);
+
+    GLES20.glUniform3fv(my3dObjLightPosParam[index], 1, lightPosInEyeSpace, 0);
+
+    // Set the Model in the shader, used to calculate lighting
+    GLES20.glUniformMatrix4fv(my3dObjModelParam[index], 1, false, modelMy3dObj[index], 0);
+
+    // Set the ModelView in the shader, used to calculate lighting
+    GLES20.glUniformMatrix4fv(my3dObjModelViewParam[index], 1, false, modelView, 0);
+
+    // Set the position of the cube
+    GLES20.glVertexAttribPointer(my3dObjPositionParam[index], COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, my3dObjVertices[index]);
+
+    // Set the ModelViewProjection matrix in the shader.
+    GLES20.glUniformMatrix4fv(my3dObjModelViewProjectionParam[index], 1, false, modelViewProjection, 0);
+
+    // Set the normal positions of the cube, again for shading
+    GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
+    GLES20.glVertexAttribPointer(my3dObjColorParam[index], 4, GLES20.GL_FLOAT, false, 0, my3dObjColors[index]);
+
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
+    checkGLError("Drawing \"+i+\" cube");
   }
 
   /**
