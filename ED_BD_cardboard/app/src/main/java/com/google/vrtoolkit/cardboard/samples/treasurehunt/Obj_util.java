@@ -6,6 +6,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.os.Environment;
 import android.util.Log;
 
@@ -18,6 +23,7 @@ class ObjUtil {
     private static final String TAG = "ObjUtil";
 
     public float[] bananaVert, bananaNorm, bananaText;
+    public int bananaTextFile;
 
     public float[] loadSettingsFromFile(String filename) {
         BufferedReader br = null;
@@ -68,8 +74,52 @@ class ObjUtil {
     }
 
     public void loadBanana() {
+        //bananaTextFile=loadTexture("Cardboard/obj_info/banana.jpg");
         bananaVert=loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
         bananaNorm =loadArrayFromFile("Cardboard/obj_info/banana.hNorms",8056*9);
         bananaText =loadArrayFromFile("Cardboard/obj_info/banana.hTexts",8056*6);
+
+    }
+
+    public int loadTexture(String filename)
+    {
+        final int[] textureHandle = new int[1];
+
+        GLES20.glGenTextures(1, textureHandle, 0);
+
+        if (textureHandle[0] != 0)
+        {
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;   // No pre-scaling
+
+            // Read in the resource
+            final Bitmap bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() +"/"+ filename);
+
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+
+            Log.i("loadGLTexture", "Bitmap:{w:" + width + " h:" + height + "}");
+
+
+            // Bind to the texture in OpenGL
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+
+            // Set filtering
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+
+            // Load the bitmap into the bound texture.
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+
+            // Recycle the bitmap, since its data has been loaded into OpenGL.
+            bitmap.recycle();
+        }
+
+        if (textureHandle[0] == 0)
+        {
+            throw new RuntimeException("Error loading texture.");
+        }
+
+        return textureHandle[0];
     }
 }
