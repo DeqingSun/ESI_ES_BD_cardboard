@@ -121,6 +121,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private Vibrator vibrator;
     private CardboardOverlayView overlayView;
 
+    private ObjUtil objUtil;
+
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader.
      *
@@ -177,6 +179,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         CardboardView cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
+
+        objUtil=new ObjUtil();
+        float[] test=objUtil.loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
+        Log.i(TAG,"a"+test.length+" "+test[0]+" "+test[1]);
 
         modelCube = new float[16];
         camera = new float[16];
