@@ -505,6 +505,24 @@ sub writeOutput {
 	}
 	print OUTFILE "};\n\n";
 	
+	open ( OUTSINGLEFILE, ">${outFilename}Verts" ) 
+	  || die "Can't create file ${outFilename}Verts ... exiting\n";
+	for( $j = 0; $j < $numFaces; $j++){
+		$ia = fixedIndex($va_idx[$j], $numVerts);
+		$ib = fixedIndex($vb_idx[$j], $numVerts);
+		$ic = fixedIndex($vc_idx[$j], $numVerts);
+		print OUTSINGLEFILE "$xcoords[$ia]\n";
+		print OUTSINGLEFILE "$ycoords[$ia]\n";
+		print OUTSINGLEFILE "$zcoords[$ia]\n";
+		print OUTSINGLEFILE "$xcoords[$ib]\n";
+		print OUTSINGLEFILE "$ycoords[$ib]\n";
+		print OUTSINGLEFILE "$zcoords[$ib]\n";
+		print OUTSINGLEFILE "$xcoords[$ic]\n";
+		print OUTSINGLEFILE "$ycoords[$ic]\n";
+		print OUTSINGLEFILE "$zcoords[$ic]\n";
+	}  
+	close OUTSINGLEFILE;
+	
 	# write normals
 	if($numNormals > 0) {
 		print OUTFILE "float ".$object."Normals \[\] = {\n"; 
@@ -519,7 +537,27 @@ sub writeOutput {
 		}
 		
 		print OUTFILE "};\n\n";
+		
+	      open ( OUTSINGLEFILE, ">${outFilename}Norms" ) 
+		|| die "Can't create file ${outFilename}Norms ... exiting\n";
+	      for( $j = 0; $j < $numFaces; $j++){
+		      $ia = fixedIndex($na_idx[$j], $numNormals);
+		      $ib = fixedIndex($nb_idx[$j], $numNormals);
+		      $ic = fixedIndex($nc_idx[$j], $numNormals);
+		      print OUTSINGLEFILE "$nx[$ia]\n";
+		      print OUTSINGLEFILE "$ny[$ia]\n";
+		      print OUTSINGLEFILE "$nz[$ia]\n";
+		      print OUTSINGLEFILE "$nx[$ib]\n";
+		      print OUTSINGLEFILE "$ny[$ib]\n";
+		      print OUTSINGLEFILE "$nz[$ib]\n";
+		      print OUTSINGLEFILE "$nx[$ic]\n";
+		      print OUTSINGLEFILE "$ny[$ic]\n";
+		      print OUTSINGLEFILE "$nz[$ic]\n";
+	      }  
+	      close OUTSINGLEFILE;
 	}
+	
+
 	
 	# write texture coords
 	if($numTexture) {
@@ -535,7 +573,24 @@ sub writeOutput {
 		}
 		
 		print OUTFILE "};\n\n";
+		
+		open ( OUTSINGLEFILE, ">${outFilename}Texts" ) 
+		|| die "Can't create file ${outFilename}Texts ... exiting\n";
+	      for( $j = 0; $j < $numFaces; $j++){
+		      $ia = fixedIndex($ta_idx[$j], $numTexture);
+		      $ib = fixedIndex($tb_idx[$j], $numTexture);
+		      $ic = fixedIndex($tc_idx[$j], $numTexture);
+		      print OUTSINGLEFILE "$tx[$ia]\n";
+		      print OUTSINGLEFILE "$ty[$ia]\n";
+		      print OUTSINGLEFILE "$tx[$ib]\n";
+		      print OUTSINGLEFILE "$ty[$ib]\n";
+		      print OUTSINGLEFILE "$tx[$ic]\n";
+		      print OUTSINGLEFILE "$ty[$ic]\n";
+	      }  
+	      close OUTSINGLEFILE;
 	}
+	
+	
 	
 	close OUTFILE;
 }
