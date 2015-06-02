@@ -76,10 +76,16 @@ class ObjUtil {
 
     public void loadBanana() {
         //bananaTextFile=loadTexture("Cardboard/obj_info/banana.jpg");
-        bananaVertexCount=36;
+        bananaVertexCount=768;
+        bananaVert=loadArrayFromFile("Cardboard/obj_info/banana.hVerts",bananaVertexCount*3);
+        bananaNorm =loadArrayFromFile("Cardboard/obj_info/banana.hNorms",bananaVertexCount*3);
+        bananaText =loadArrayFromFile("Cardboard/obj_info/banana.hTexts",bananaVertexCount*2);
+
+        /*bananaVertexCount=36;
         bananaVert=loadArrayFromFile("Cardboard/obj_info/cube-textures.hVerts",bananaVertexCount*3);
         bananaNorm =loadArrayFromFile("Cardboard/obj_info/cube-textures.hNorms",bananaVertexCount*3);
-        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",bananaVertexCount*2);
+        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",bananaVertexCount*2);*/
+
 
     }
 

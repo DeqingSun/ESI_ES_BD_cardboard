@@ -225,7 +225,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onSurfaceCreated(EGLConfig config) {
         Log.i(TAG, "onSurfaceCreated");
 
-        objUtil.bananaTextFile=objUtil.loadTexture("Cardboard/obj_info/rgb_test.jpg");
+        objUtil.bananaTextFile=objUtil.loadTexture("Cardboard/obj_info/banana.jpg");
 
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well.
 
