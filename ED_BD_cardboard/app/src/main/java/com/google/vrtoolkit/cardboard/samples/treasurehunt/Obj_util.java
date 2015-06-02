@@ -75,9 +75,9 @@ class ObjUtil {
 
     public void loadBanana() {
         //bananaTextFile=loadTexture("Cardboard/obj_info/banana.jpg");
-        bananaVert=loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
-        bananaNorm =loadArrayFromFile("Cardboard/obj_info/banana.hNorms",8056*9);
-        bananaText =loadArrayFromFile("Cardboard/obj_info/banana.hTexts",8056*6);
+        bananaVert=loadArrayFromFile("Cardboard/obj_info/cube-textures.hVerts",36*3);
+        bananaNorm =loadArrayFromFile("Cardboard/obj_info/cube-textures.hNorms",36*3);
+        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",36*2);
 
     }
 

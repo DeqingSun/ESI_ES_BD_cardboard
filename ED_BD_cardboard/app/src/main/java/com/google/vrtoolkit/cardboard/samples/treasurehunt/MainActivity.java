@@ -57,7 +57,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private static final int COORDS_PER_VERTEX = 3;
 
-    private static final int my3dObjCount = 6;
+    private static final int my3dObjCount = 3;
 
     // We keep the light always position just above the user.
     private static final float[] LIGHT_POS_IN_WORLD_SPACE = new float[] { 0.0f, 2.0f, 0.0f, 1.0f };
@@ -225,7 +225,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onSurfaceCreated(EGLConfig config) {
         Log.i(TAG, "onSurfaceCreated");
 
-        objUtil.bananaTextFile=objUtil.loadTexture("Cardboard/obj_info/banana.jpg");
+        objUtil.bananaTextFile=objUtil.loadTexture("Cardboard/obj_info/rgb_test.jpg");
 
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well.
 
@@ -295,8 +295,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
 
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
+        int vertexTextureShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.light_vertex_texture);
         int gridShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.grid_fragment);
         int passthroughShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment);
+        int passthroughTextureShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment_texture);
 
         cubeProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(cubeProgram, vertexShader);
@@ -347,8 +349,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         for (int i=0;i<my3dObjCount;i++) {
             my3dObjProgram[i] = GLES20.glCreateProgram();
-            GLES20.glAttachShader(my3dObjProgram[i], vertexShader);
-            GLES20.glAttachShader(my3dObjProgram[i], passthroughShader);
+            GLES20.glAttachShader(my3dObjProgram[i], vertexTextureShader);
+            GLES20.glAttachShader(my3dObjProgram[i], passthroughTextureShader);
             GLES20.glLinkProgram(my3dObjProgram[i]);
             GLES20.glUseProgram(my3dObjProgram[i]);
 
@@ -364,9 +366,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             my3dObjLightPosParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_LightPos");
             my3dObjTextureUniformHandlerParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_Texture");
 
-            //GLES20.glEnableVertexAttribArray(my3dObjPositionParam[i]);
-            //GLES20.glEnableVertexAttribArray(my3dObjNormalParam[i]);
-            //GLES20.glEnableVertexAttribArray(my3dObjTextureParam[i]);
+            GLES20.glEnableVertexAttribArray(my3dObjPositionParam[i]);
+            GLES20.glEnableVertexAttribArray(my3dObjNormalParam[i]);
+            GLES20.glEnableVertexAttribArray(my3dObjTextureParam[i]);
 
             checkGLError("my3dObj "+i+" program params");
         }
@@ -419,6 +421,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onNewFrame(HeadTransform headTransform) {
         // Build the Model part of the ModelView matrix.
         Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+
+        //!!!!!!
+        Matrix.rotateM(modelMy3dObj[0], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
@@ -547,17 +552,15 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Set the ModelViewProjection matrix in the shader.
         GLES20.glUniformMatrix4fv(my3dObjModelViewProjectionParam[index], 1, false, modelViewProjection, 0);
 
+
+
         // Set the normal positions of the cube, again for shading
         GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
-        checkGLError("Drawing " + index + " cube,Before texture");
-        GLES20.glVertexAttribPointer(my3dObjTextureParam[index], 2, GLES20.GL_FLOAT, false, 0, my3dObjTextureParam[index]);
-
+        GLES20.glVertexAttribPointer(my3dObjTextureParam[index], 2, GLES20.GL_FLOAT, false, 0, my3dObjTextures[index]);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, objUtil.bananaTextFile);
-
         GLES20.glUniform1i(my3dObjTextureUniformHandlerParam[index], 0);
-
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);//!!!!!!
         checkGLError("Drawing "+index+" cube");
     }
 
