@@ -22,12 +22,17 @@ import java.io.InputStreamReader;
 class ObjUtil {
     private static final String TAG = "ObjUtil";
 
-    public float[] bananaVert, bananaNorm, bananaText;
-    public int bananaTextFile;
-    public int bananaVertexCount;
+    public float[][] objVert, objNorm, objText;
+    public int[] objTextFile = new int[0];
+    String[] objNames = new String[0];
+    int[] objVertices = new int[0];
 
-    public float[] loadSettingsFromFile(String filename) {
+    public int loadSettingsFromFile(String filename) {
         BufferedReader br = null;
+        int line_counting=0;
+        int obj_counting=0;
+        String[] obj_names = new String[0];
+        int[] obj_vertices = new int[0];
         try {
             String fpath = Environment.getExternalStorageDirectory() +"/"+ filename;
 
@@ -37,18 +42,33 @@ class ObjUtil {
 
             String line = "";
             while ((line = br.readLine()) != null) {
-                Log.i(TAG, line);
+                //Log.i(TAG, line);
+                if (line_counting==0){
+                    obj_counting=Integer.parseInt(line);
+                    obj_names=new String[obj_counting];
+                    obj_vertices=new int[obj_counting];
+                }else if (line_counting<1+obj_counting){
+                    String[] parts = line.trim().split(" ");
+                    obj_names[line_counting-1]=parts[0];
+                    obj_vertices[line_counting-1]=Integer.parseInt(parts[1]);
+                }
+                line_counting++;
             }
-
-
+            objNames=obj_names;
+            objVertices=obj_vertices;
+            objTextFile = new int[obj_counting];
+            objVert = new float[obj_counting][];
+            objNorm = new float[obj_counting][];
+            objText = new float[obj_counting][];
+            loadVert();
         }catch (FileNotFoundException e){
             // do stuff here..
-            return null;
+            return -1;
         }catch (IOException e){
             // do stuff here..
-            return null;
+            return -1;
         }
-        return null;
+        return obj_counting;
     }
 
 
@@ -74,19 +94,12 @@ class ObjUtil {
         return dataArray;
     }
 
-    public void loadBanana() {
-        //bananaTextFile=loadTexture("Cardboard/obj_info/banana.jpg");
-        bananaVertexCount=768;
-        bananaVert=loadArrayFromFile("Cardboard/obj_info/banana.hVerts",bananaVertexCount*3);
-        bananaNorm =loadArrayFromFile("Cardboard/obj_info/banana.hNorms",bananaVertexCount*3);
-        bananaText =loadArrayFromFile("Cardboard/obj_info/banana.hTexts",bananaVertexCount*2);
-
-        /*bananaVertexCount=36;
-        bananaVert=loadArrayFromFile("Cardboard/obj_info/cube-textures.hVerts",bananaVertexCount*3);
-        bananaNorm =loadArrayFromFile("Cardboard/obj_info/cube-textures.hNorms",bananaVertexCount*3);
-        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",bananaVertexCount*2);*/
-
-
+    public void loadVert() {
+        for (int i=0;i<objNames.length;i++) {
+            objVert[i] = loadArrayFromFile("Cardboard/obj_info/"+objNames[i]+".hVerts", objVertices[i] * 3);
+            objNorm[i] = loadArrayFromFile("Cardboard/obj_info/"+objNames[i]+".hNorms", objVertices[i] * 3);
+            objText[i] = loadArrayFromFile("Cardboard/obj_info/"+objNames[i]+".hTexts", objVertices[i] * 2);
+        }
     }
 
     public int loadTexture(String filename)
@@ -106,7 +119,7 @@ class ObjUtil {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
 
-            Log.i("loadGLTexture", "Bitmap:{w:" + width + " h:" + height + "}");
+            //Log.i("loadGLTexture", "Bitmap:{w:" + width + " h:" + height + "}");
 
 
             // Bind to the texture in OpenGL
@@ -129,5 +142,11 @@ class ObjUtil {
         }
 
         return textureHandle[0];
+    }
+
+    public void loadAllTextures() {
+        for (int i=0;i<objNames.length;i++){
+            objTextFile[i]=loadTexture("Cardboard/obj_info/"+objNames[i]+".jpg");
+        }
     }
 }

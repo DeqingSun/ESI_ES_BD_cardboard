@@ -57,7 +57,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private static final int COORDS_PER_VERTEX = 3;
 
-    private static final int my3dObjCount = 3;
+    private int my3dObjCount = 0;
 
     // We keep the light always position just above the user.
     private static final float[] LIGHT_POS_IN_WORLD_SPACE = new float[] { 0.0f, 2.0f, 0.0f, 1.0f };
@@ -75,7 +75,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private FloatBuffer my3dObjVertices[] = new FloatBuffer[my3dObjCount];
     private FloatBuffer my3dObjTextures[] = new FloatBuffer[my3dObjCount];
-    private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
+    //private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
 
     private int cubeProgram;
     private int floorProgram;
@@ -182,9 +182,24 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         setCardboardView(cardboardView);
 
         objUtil=new ObjUtil();
-        objUtil.loadBanana();
-        //float[] test=objUtil.loadArrayFromFile("Cardboard/obj_info/banana.hVerts",8056*9);
-        //Log.i(TAG,"a"+test.length+" "+test[0]+" "+test[1]);
+        int objCount=objUtil.loadSettingsFromFile("Cardboard/obj_info/setting.txt");
+        if (objCount>0){
+            my3dObjCount=objCount;
+
+            my3dObjVertices = new FloatBuffer[my3dObjCount];
+            my3dObjTextures = new FloatBuffer[my3dObjCount];
+            //my3dObjNormals = new FloatBuffer[my3dObjCount];
+            my3dObjProgram = new int[my3dObjCount];
+            my3dObjPositionParam = new int[my3dObjCount];
+            my3dObjNormalParam = new int[my3dObjCount];
+            my3dObjTextureParam = new int[my3dObjCount];
+            my3dObjModelParam = new int[my3dObjCount];
+            my3dObjModelViewParam = new int[my3dObjCount];
+            my3dObjModelViewProjectionParam = new int[my3dObjCount];
+            my3dObjLightPosParam = new int[my3dObjCount];
+            my3dObjTextureUniformHandlerParam = new int[my3dObjCount];
+            modelMy3dObj = new float[my3dObjCount][];
+        }
 
         modelCube = new float[16];
         camera = new float[16];
@@ -225,7 +240,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onSurfaceCreated(EGLConfig config) {
         Log.i(TAG, "onSurfaceCreated");
 
-        objUtil.bananaTextFile=objUtil.loadTexture("Cardboard/obj_info/banana.jpg");
+        objUtil.loadAllTextures();
 
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well.
 
@@ -275,23 +290,23 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         //make my own 3d objs
         for (int i=0;i<my3dObjCount;i++) {
-            ByteBuffer bbMy3dObjVertices = ByteBuffer.allocateDirect(objUtil.bananaVert.length * 4);
+            ByteBuffer bbMy3dObjVertices = ByteBuffer.allocateDirect(objUtil.objVert[i].length * 4);
             bbMy3dObjVertices.order(ByteOrder.nativeOrder());
             my3dObjVertices[i] = bbMy3dObjVertices.asFloatBuffer();
-            my3dObjVertices[i].put(objUtil.bananaVert);
+            my3dObjVertices[i].put(objUtil.objVert[i]);
             my3dObjVertices[i].position(0);
 
-            ByteBuffer bbMy3dObjTextures = ByteBuffer.allocateDirect(objUtil.bananaText.length * 4);
+            ByteBuffer bbMy3dObjTextures = ByteBuffer.allocateDirect(objUtil.objText[i].length * 4);
             bbMy3dObjTextures.order(ByteOrder.nativeOrder());
             my3dObjTextures[i] = bbMy3dObjTextures.asFloatBuffer();
-            my3dObjTextures[i].put(objUtil.bananaText);
+            my3dObjTextures[i].put(objUtil.objText[i]);
             my3dObjTextures[i].position(0);
 
-            ByteBuffer bbMy3dObjNormals = ByteBuffer.allocateDirect(objUtil.bananaNorm.length * 4);
+            /*ByteBuffer bbMy3dObjNormals = ByteBuffer.allocateDirect(objUtil.bananaNorm.length * 4);
             bbMy3dObjNormals.order(ByteOrder.nativeOrder());
             my3dObjNormals[i] = bbMy3dObjNormals.asFloatBuffer();
             my3dObjNormals[i].put(objUtil.bananaNorm);
-            my3dObjNormals[i].position(0);
+            my3dObjNormals[i].position(0);*/
         }
 
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
@@ -558,9 +573,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         //GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
         GLES20.glVertexAttribPointer(my3dObjTextureParam[index], 2, GLES20.GL_FLOAT, false, 0, my3dObjTextures[index]);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, objUtil.bananaTextFile);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, objUtil.objTextFile[index]);
         GLES20.glUniform1i(my3dObjTextureUniformHandlerParam[index], 0);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, objUtil.bananaVertexCount);//!!!!!!
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, objUtil.objVertices[index]);
         checkGLError("Drawing "+index+" cube");
     }
 
