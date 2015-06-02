@@ -24,6 +24,7 @@ class ObjUtil {
 
     public float[] bananaVert, bananaNorm, bananaText;
     public int bananaTextFile;
+    public int bananaVertexCount;
 
     public float[] loadSettingsFromFile(String filename) {
         BufferedReader br = null;
@@ -75,9 +76,10 @@ class ObjUtil {
 
     public void loadBanana() {
         //bananaTextFile=loadTexture("Cardboard/obj_info/banana.jpg");
-        bananaVert=loadArrayFromFile("Cardboard/obj_info/cube-textures.hVerts",36*3);
-        bananaNorm =loadArrayFromFile("Cardboard/obj_info/cube-textures.hNorms",36*3);
-        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",36*2);
+        bananaVertexCount=36;
+        bananaVert=loadArrayFromFile("Cardboard/obj_info/cube-textures.hVerts",bananaVertexCount*3);
+        bananaNorm =loadArrayFromFile("Cardboard/obj_info/cube-textures.hNorms",bananaVertexCount*3);
+        bananaText =loadArrayFromFile("Cardboard/obj_info/cube-textures.hTexts",bananaVertexCount*2);
 
     }
 

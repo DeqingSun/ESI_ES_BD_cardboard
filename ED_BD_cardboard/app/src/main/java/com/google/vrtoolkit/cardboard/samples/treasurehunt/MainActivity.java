@@ -423,7 +423,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         //!!!!!!
-        Matrix.rotateM(modelMy3dObj[0], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+        for (int i=0;i<my3dObjCount;i++) Matrix.rotateM(modelMy3dObj[i], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
@@ -560,7 +560,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, objUtil.bananaTextFile);
         GLES20.glUniform1i(my3dObjTextureUniformHandlerParam[index], 0);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);//!!!!!!
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, objUtil.bananaVertexCount);//!!!!!!
         checkGLError("Drawing "+index+" cube");
     }
 
