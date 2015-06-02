@@ -367,7 +367,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             my3dObjTextureUniformHandlerParam[i] = GLES20.glGetUniformLocation(my3dObjProgram[i], "u_Texture");
 
             GLES20.glEnableVertexAttribArray(my3dObjPositionParam[i]);
-            GLES20.glEnableVertexAttribArray(my3dObjNormalParam[i]);
+            //GLES20.glEnableVertexAttribArray(my3dObjNormalParam[i]);
             GLES20.glEnableVertexAttribArray(my3dObjTextureParam[i]);
 
             checkGLError("my3dObj "+i+" program params");
@@ -555,7 +555,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
 
         // Set the normal positions of the cube, again for shading
-        GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
+        //GLES20.glVertexAttribPointer(my3dObjNormalParam[index], 3, GLES20.GL_FLOAT, false, 0, my3dObjNormals[index]);
         GLES20.glVertexAttribPointer(my3dObjTextureParam[index], 2, GLES20.GL_FLOAT, false, 0, my3dObjTextures[index]);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, objUtil.bananaTextFile);
