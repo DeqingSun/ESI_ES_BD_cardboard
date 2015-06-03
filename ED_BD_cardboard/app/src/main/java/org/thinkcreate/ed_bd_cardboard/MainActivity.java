@@ -22,7 +22,12 @@ import com.google.vrtoolkit.cardboard.Eye;
 import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
@@ -124,6 +129,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private ObjUtil objUtil;
 
+    static final int RESULT_ENABLE = 1;
+    private DevicePolicyManager mDeviceManager;
+    //private ActivityManager activityManager;
+    private ComponentName mCompNameAdmin;
+
+
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader.
      *
@@ -213,10 +224,37 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        mDeviceManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        //activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        mCompNameAdmin = new ComponentName(this, MyAdmin.class);
+        if (!mDeviceManager.isAdminActive(mCompNameAdmin)) {
+
+            Intent intent = new Intent(DevicePolicyManager
+                    .ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                    mCompNameAdmin);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                    "Grant this app for saving power by lock screen");
+            startActivityForResult(intent, RESULT_ENABLE);
+        }
 
         overlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         overlayView.show3DToast("Pull the magnet when you find an object.");
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RESULT_ENABLE:
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.i("DeviceAdminSample", "Admin enabled!");
+                } else {
+                    Log.i("DeviceAdminSample", "Admin enable FAILED!");
+                }
+                return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 
     @Override
     public void onRendererShutdown() {
@@ -596,6 +634,16 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Always give user feedback.
         vibrator.vibrate(50);
+
+        {//lock device
+            boolean active = mDeviceManager.isAdminActive(mCompNameAdmin);
+
+            if (active) {
+                mDeviceManager.lockNow();
+            }else{
+                Log.i("TAG","No Admin access to lock screen");
+            }
+        }
     }
 
     /**
