@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.vrtoolkit.cardboard.samples.treasurehunt;
+package org.thinkcreate.ed_bd_cardboard;
 
 import android.content.Context;
 import android.graphics.Color;

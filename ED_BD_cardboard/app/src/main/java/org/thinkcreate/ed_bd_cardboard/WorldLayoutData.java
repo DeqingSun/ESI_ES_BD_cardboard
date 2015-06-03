@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.vrtoolkit.cardboard.samples.treasurehunt;
+package org.thinkcreate.ed_bd_cardboard;
 
 /**
  * Contains vertex, normal and color data.

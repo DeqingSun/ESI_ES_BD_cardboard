@@ -1,4 +1,4 @@
-package com.google.vrtoolkit.cardboard.samples.treasurehunt;
+package org.thinkcreate.ed_bd_cardboard;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.InputStreamReader;
 
