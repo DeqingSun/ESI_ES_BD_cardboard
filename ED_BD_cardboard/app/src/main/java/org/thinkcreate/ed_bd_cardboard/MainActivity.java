@@ -143,6 +143,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private int mWakeUpTime = 5000;
     private boolean mAwake = true;
     PowerManager.WakeLock mScreenLock;
+    private long mFrameStartTime = System.currentTimeMillis();
 
 
     /**
@@ -486,6 +487,17 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      */
     @Override
     public void onNewFrame(HeadTransform headTransform) {
+        long frameEndTime = System.currentTimeMillis();
+        int deltaTime = (int)(frameEndTime - mFrameStartTime);
+        if (deltaTime < 500 && !mAwake) {
+            try {
+                Thread.sleep(500 - deltaTime);
+            } catch (InterruptedException e) {
+                //whatever
+            }
+        }
+        mFrameStartTime = frameEndTime;
+
         // Build the Model part of the ModelView matrix.
         Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
