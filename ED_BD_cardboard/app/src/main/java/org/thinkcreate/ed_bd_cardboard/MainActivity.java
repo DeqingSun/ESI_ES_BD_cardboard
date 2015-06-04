@@ -35,6 +35,7 @@ import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.util.Log;
 
@@ -141,6 +142,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private long mLastMovementTime = System.currentTimeMillis();
     private int mWakeUpTime = 5000;
     private boolean mAwake = true;
+    PowerManager.WakeLock mScreenLock;
 
 
     /**
@@ -247,6 +249,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), 40000);
+        mScreenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                | PowerManager.ON_AFTER_RELEASE, "ScreenOnLock");
 
         overlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         overlayView.show3DToast("Pull the magnet when you find an object.");
@@ -742,6 +746,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private void wakeUpFunction(){
         mAwake=true;    //wake up!!
         mLastMovementTime=System.currentTimeMillis();;
+        mScreenLock.acquire();
+        mScreenLock.release();
     }
 
 }
