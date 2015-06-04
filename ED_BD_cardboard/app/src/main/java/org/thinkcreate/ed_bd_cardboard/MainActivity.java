@@ -648,15 +648,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Always give user feedback.
         vibrator.vibrate(50);
 
-        /*{//lock device
-            boolean active = mDeviceManager.isAdminActive(mCompNameAdmin);
-
-            if (active) {
-                mDeviceManager.lockNow();
-            }else{
-                Log.i("TAG","No Admin access to lock screen");
-            }
-        }*/
+        wakeUpFunction();
     }
 
     /**
@@ -725,6 +717,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 if ((currentTime-mLastMovementTime)>mWakeUpTime){
                     mAwake=false;   //sleep
                     Log.i(TAG,"Sleep no movement");
+                    //lock device
+                    boolean active = mDeviceManager.isAdminActive(mCompNameAdmin);
+
+                    if (active) {
+                        mDeviceManager.lockNow();
+                    }else{
+                        Log.i("TAG","No Admin access to lock screen");
+                    }
                 }
             }else{
                 //do nothing, Keep sleeping
@@ -733,11 +733,15 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             if (mAwake){
                 //do nothing
             }else{
-                mAwake=true;    //wake up!!
                 Log.i(TAG,"Wake UP due to movement!");
+                wakeUpFunction();
             }
-            mLastMovementTime=currentTime;
         }
+    }
+
+    private void wakeUpFunction(){
+        mAwake=true;    //wake up!!
+        mLastMovementTime=System.currentTimeMillis();;
     }
 
 }
