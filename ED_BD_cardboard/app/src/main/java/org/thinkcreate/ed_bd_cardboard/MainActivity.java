@@ -28,6 +28,10 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
@@ -47,7 +51,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 /**
  * A Cardboard sample application.
  */
-public class MainActivity extends CardboardActivity implements CardboardView.StereoRenderer {
+public class MainActivity extends CardboardActivity implements CardboardView.StereoRenderer, SensorEventListener {
 
     private static final String TAG = "MainActivity";
 
@@ -133,6 +137,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private DevicePolicyManager mDeviceManager;
     //private ActivityManager activityManager;
     private ComponentName mCompNameAdmin;
+    private SensorManager mSensorManager;
+    private long mLastMovementTime = System.currentTimeMillis();
+    private int mWakeUpTime = 5000;
+    private boolean mAwake = true;
 
 
     /**
@@ -237,6 +245,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                     "Grant this app for saving power by lock screen");
             startActivityForResult(intent, RESULT_ENABLE);
         }
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), 40000);
 
         overlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         overlayView.show3DToast("Pull the magnet when you find an object.");
@@ -522,6 +532,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
             drawMy3dObj(i);
         }
+        //Log.i(TAG,"Draweye");//looks still drawing~~~~
+        //need to cap it when screen is down
+        //http://stackoverflow.com/questions/4772693/how-to-limit-framerate-when-using-androids-glsurfaceview-rendermode-continuousl
     }
 
     @Override
@@ -635,7 +648,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Always give user feedback.
         vibrator.vibrate(50);
 
-        {//lock device
+        /*{//lock device
             boolean active = mDeviceManager.isAdminActive(mCompNameAdmin);
 
             if (active) {
@@ -643,7 +656,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             }else{
                 Log.i("TAG","No Admin access to lock screen");
             }
-        }
+        }*/
     }
 
     /**
@@ -693,4 +706,38 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
     }
+
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //Do nothing
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        //Log.i("TAG",String.format("%2.2f   %2.2f   %2.2f",event.values[0],event.values[1],event.values[2]));
+
+        float threshold = 0.1f;
+        long currentTime = System.currentTimeMillis();
+        if (Math.abs(event.values[0])<threshold && Math.abs(event.values[1])<threshold && Math.abs(event.values[2])<threshold){
+            if (mAwake){
+                if ((currentTime-mLastMovementTime)>mWakeUpTime){
+                    mAwake=false;   //sleep
+                    Log.i(TAG,"Sleep no movement");
+                }
+            }else{
+                //do nothing, Keep sleeping
+            }
+        }else{
+            if (mAwake){
+                //do nothing
+            }else{
+                mAwake=true;    //wake up!!
+                Log.i(TAG,"Wake UP due to movement!");
+            }
+            mLastMovementTime=currentTime;
+        }
+    }
+
 }
