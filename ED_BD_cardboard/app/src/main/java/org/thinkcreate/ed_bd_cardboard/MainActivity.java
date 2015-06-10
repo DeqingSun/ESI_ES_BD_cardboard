@@ -140,7 +140,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private ComponentName mCompNameAdmin;
     private SensorManager mSensorManager;
     private long mLastMovementTime = System.currentTimeMillis();
-    private int mWakeUpTime = 5000;
+    private int mWakeUpTime = 60*1000;
     private boolean mAwake = true;
     PowerManager.WakeLock mScreenLock;
     private long mFrameStartTime = System.currentTimeMillis();
@@ -504,7 +504,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         //Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         //!!!!!!
-        for (int i=0;i<my3dObjCount;i++) Matrix.rotateM(modelMy3dObj[i], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+        //for (int i=0;i<my3dObjCount;i++) Matrix.rotateM(modelMy3dObj[i], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
