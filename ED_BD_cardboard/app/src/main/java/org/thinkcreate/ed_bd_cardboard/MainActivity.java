@@ -78,26 +78,26 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private FloatBuffer floorColors;
     private FloatBuffer floorNormals;
 
-    private FloatBuffer cubeVertices;
-    private FloatBuffer cubeColors;
-    private FloatBuffer cubeFoundColors;
-    private FloatBuffer cubeNormals;
+    //private FloatBuffer cubeVertices;
+    //private FloatBuffer cubeColors;
+    //private FloatBuffer cubeFoundColors;
+    //private FloatBuffer cubeNormals;
 
     private FloatBuffer my3dObjVertices[] = new FloatBuffer[my3dObjCount];
     private FloatBuffer my3dObjTextures[] = new FloatBuffer[my3dObjCount];
     //private FloatBuffer my3dObjNormals[] = new FloatBuffer[my3dObjCount];
 
-    private int cubeProgram;
+    //private int cubeProgram;
     private int floorProgram;
     private int my3dObjProgram[] = new int[my3dObjCount];
 
-    private int cubePositionParam;
-    private int cubeNormalParam;
-    private int cubeColorParam;
-    private int cubeModelParam;
-    private int cubeModelViewParam;
-    private int cubeModelViewProjectionParam;
-    private int cubeLightPosParam;
+    //private int cubePositionParam;
+    //private int cubeNormalParam;
+    //private int cubeColorParam;
+    //private int cubeModelParam;
+    //private int cubeModelViewParam;
+    //private int cubeModelViewProjectionParam;
+    //private int cubeLightPosParam;
 
     private int floorPositionParam;
     private int floorNormalParam;
@@ -116,7 +116,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private int my3dObjLightPosParam[] = new int[my3dObjCount];
     private int my3dObjTextureUniformHandlerParam[] = new int[my3dObjCount];
 
-    private float[] modelCube;
+    //private float[] modelCube;
     private float[] camera;
     private float[] view;
     private float[] headView;
@@ -125,7 +125,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private float[] modelFloor;
     private float[][] modelMy3dObj = new float[my3dObjCount][];
 
-    private int score = 0;
+    //private int score = 0;
     private float objectDistance = 12f;
     private float floorDepth = 20f;
 
@@ -144,6 +144,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private boolean mAwake = true;
     PowerManager.WakeLock mScreenLock;
     private long mFrameStartTime = System.currentTimeMillis();
+
+    private int displayIndex=0;
 
 
     /**
@@ -223,7 +225,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             modelMy3dObj = new float[my3dObjCount][];
         }
 
-        modelCube = new float[16];
+        //modelCube = new float[16];
         camera = new float[16];
         view = new float[16];
         modelViewProjection = new float[16];
@@ -254,7 +256,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 | PowerManager.ON_AFTER_RELEASE, "ScreenOnLock");
 
         overlayView = (CardboardOverlayView) findViewById(R.id.overlay);
-        overlayView.show3DToast("Pull the magnet when you find an object.");
+        overlayView.show3DToast("Pull the magnet to switch objects");
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -297,7 +299,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well.
 
-        ByteBuffer bbVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
+        /*ByteBuffer bbVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
         bbVertices.order(ByteOrder.nativeOrder());
         cubeVertices = bbVertices.asFloatBuffer();
         cubeVertices.put(WorldLayoutData.CUBE_COORDS);
@@ -320,7 +322,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         bbNormals.order(ByteOrder.nativeOrder());
         cubeNormals = bbNormals.asFloatBuffer();
         cubeNormals.put(WorldLayoutData.CUBE_NORMALS);
-        cubeNormals.position(0);
+        cubeNormals.position(0);*/
 
         // make a floor
         ByteBuffer bbFloorVertices = ByteBuffer.allocateDirect(WorldLayoutData.FLOOR_COORDS.length * 4);
@@ -368,7 +370,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         int passthroughShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment);
         int passthroughTextureShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment_texture);
 
-        cubeProgram = GLES20.glCreateProgram();
+        /*cubeProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(cubeProgram, vertexShader);
         GLES20.glAttachShader(cubeProgram, passthroughShader);
         GLES20.glLinkProgram(cubeProgram);
@@ -389,7 +391,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glEnableVertexAttribArray(cubeNormalParam);
         GLES20.glEnableVertexAttribArray(cubeColorParam);
 
-        checkGLError("Cube program params");
+        checkGLError("Cube program params");*/
 
         floorProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(floorProgram, vertexShader);
@@ -442,8 +444,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
 
         // Object first appears directly in front of user.
-        Matrix.setIdentityM(modelCube, 0);
-        Matrix.translateM(modelCube, 0, 0, 0, -objectDistance);
+        //Matrix.setIdentityM(modelCube, 0);
+        //Matrix.translateM(modelCube, 0, 0, 0, -objectDistance);
 
         Matrix.setIdentityM(modelFloor, 0);
         Matrix.translateM(modelFloor, 0, 0, -floorDepth, 0); // Floor appears below user.
@@ -499,7 +501,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mFrameStartTime = frameEndTime;
 
         // Build the Model part of the ModelView matrix.
-        Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+        //Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         //!!!!!!
         for (int i=0;i<my3dObjCount;i++) Matrix.rotateM(modelMy3dObj[i], 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
@@ -533,9 +535,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Build the ModelView and ModelViewProjection matrices
         // for calculating cube position and light.
         float[] perspective = eye.getPerspective(Z_NEAR, Z_FAR);
-        Matrix.multiplyMM(modelView, 0, view, 0, modelCube, 0);
-        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
-        drawCube();
+        //Matrix.multiplyMM(modelView, 0, view, 0, modelCube, 0);
+        //Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
+        //drawCube();
 
         // Set modelView for the floor, so we draw floor in the correct location
         Matrix.multiplyMM(modelView, 0, view, 0, modelFloor, 0);
@@ -546,7 +548,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         for (int i=0;i<my3dObjCount;i++) {
             Matrix.multiplyMM(modelView, 0, view, 0, modelMy3dObj[i], 0);
             Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
-            drawMy3dObj(i);
+            if (i==displayIndex){
+                drawMy3dObj(i);
+            }
         }
         //Log.i(TAG,"Draweye");//looks still drawing~~~~
         //need to cap it when screen is down
@@ -562,7 +566,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      *
      * <p>We've set all of our transformation matrices. Now we simply pass them into the shader.
      */
-    public void drawCube() {
+    /*public void drawCube() {
         GLES20.glUseProgram(cubeProgram);
 
         GLES20.glUniform3fv(cubeLightPosParam, 1, lightPosInEyeSpace, 0);
@@ -587,7 +591,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
         checkGLError("Drawing cube");
-    }
+    }*/
 
     /**
      * Draw the floor.
@@ -653,13 +657,15 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
 
-        if (isLookingAtObject()) {
+        /*if (isLookingAtObject()) {
             score++;
             overlayView.show3DToast("Found it! Look around for another one.\nScore = " + score);
             hideObject();
         } else {
             overlayView.show3DToast("Look around to find the object!");
-        }
+        }*/
+        displayIndex++;
+        if (displayIndex>=my3dObjCount) displayIndex=0;
 
         // Always give user feedback.
         vibrator.vibrate(50);
@@ -672,7 +678,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      *
      * <p>We'll rotate it around the Y-axis so it's out of sight, and then up or down by a little bit.
      */
-    private void hideObject() {
+    /*private void hideObject() {
         float[] rotationMatrix = new float[16];
         float[] posVec = new float[4];
 
@@ -694,14 +700,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         Matrix.setIdentityM(modelCube, 0);
         Matrix.translateM(modelCube, 0, posVec[0], newY, posVec[2]);
-    }
+    }*
 
     /**
      * Check if user is looking at object by calculating where the object is in eye-space.
      *
      * @return true if the user is looking at the object.
      */
-    private boolean isLookingAtObject() {
+    /*private boolean isLookingAtObject() {
         float[] initVec = { 0, 0, 0, 1.0f };
         float[] objPositionVec = new float[4];
 
@@ -713,7 +719,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         float yaw = (float) Math.atan2(objPositionVec[0], -objPositionVec[2]);
 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
-    }
+    }*/
 
 
     @Override
