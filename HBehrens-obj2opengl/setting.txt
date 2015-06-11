@@ -1,5 +1,5 @@
 3
-banana 768
-cube-textures 36
-earth 522
+banana 768 4 0 12
+cube-textures 36 -4 0 12
+earth 522 0 0 0
 

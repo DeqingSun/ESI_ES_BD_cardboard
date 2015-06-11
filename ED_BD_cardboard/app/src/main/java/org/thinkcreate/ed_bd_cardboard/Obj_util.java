@@ -25,6 +25,7 @@ class ObjUtil {
     public int[] objTextFile = new int[0];
     String[] objNames = new String[0];
     int[] objVertices = new int[0];
+    float[][] objPosition = new float[0][];//x y distance: right, up, forward
 
     public int loadSettingsFromFile(String filename) {
         BufferedReader br = null;
@@ -32,6 +33,7 @@ class ObjUtil {
         int obj_counting=0;
         String[] obj_names = new String[0];
         int[] obj_vertices = new int[0];
+
         try {
             String fpath = Environment.getExternalStorageDirectory() +"/"+ filename;
 
@@ -46,10 +48,15 @@ class ObjUtil {
                     obj_counting=Integer.parseInt(line);
                     obj_names=new String[obj_counting];
                     obj_vertices=new int[obj_counting];
+                    objPosition =new float[obj_counting][3];
                 }else if (line_counting<1+obj_counting){
+                    int index=line_counting-1;
                     String[] parts = line.trim().split(" ");
-                    obj_names[line_counting-1]=parts[0];
-                    obj_vertices[line_counting-1]=Integer.parseInt(parts[1]);
+                    obj_names[index]=parts[0];
+                    obj_vertices[index]=Integer.parseInt(parts[1]);
+                    objPosition[index][0]=Float.parseFloat(parts[2]);
+                    objPosition[index][1]=Float.parseFloat(parts[3]);
+                    objPosition[index][2]=Float.parseFloat(parts[4]);
                 }
                 line_counting++;
             }

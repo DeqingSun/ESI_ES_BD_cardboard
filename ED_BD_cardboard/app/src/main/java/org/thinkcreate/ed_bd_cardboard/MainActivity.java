@@ -23,7 +23,6 @@ import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -453,7 +452,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         for (int i=0;i<my3dObjCount;i++) {
             // Object my objects appears directly in front of user.
             Matrix.setIdentityM(modelMy3dObj[i], 0);
-            Matrix.translateM(modelMy3dObj[i], 0, (float)(4*Math.cos(i*2*Math.PI/my3dObjCount)), (float)(4*Math.sin(i*2*Math.PI/my3dObjCount)), -objectDistance);
+            //Matrix.translateM(modelMy3dObj[i], 0, (float)(4*Math.cos(i*2*Math.PI/my3dObjCount)), (float)(4*Math.sin(i*2*Math.PI/my3dObjCount)), -objectDistance);
+            Matrix.translateM(modelMy3dObj[i], 0, objUtil.objPosition[i][0], objUtil.objPosition[i][1], -objUtil.objPosition[i][2]);
         }
 
         checkGLError("onSurfaceCreated");
