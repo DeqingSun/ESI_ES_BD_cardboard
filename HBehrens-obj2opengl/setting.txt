@@ -1,5 +1,7 @@
-3
+4
 banana 768 4 0 12
 cube-textures 36 -4 0 12
-earth 522 0 0 0
+earth 522 0 4 12
+pano0 2160 0 0 0
+
 
